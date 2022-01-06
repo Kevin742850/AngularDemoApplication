@@ -8,9 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AngularDemoApplication.Data;
 using AngularDemoApplication.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AngularDemoApplication.Controllers
 {
+    [Authorize]
     [Route("api/Inspections")]
     [ApiController]
     public class InspectionsController : ControllerBase

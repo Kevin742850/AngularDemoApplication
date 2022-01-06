@@ -20,7 +20,7 @@ namespace AngularDemoApplication.Controllers
     [Authorize]
     [Route("api/Authenticate")]
     [ApiController]
-   
+
     public class AuthenticateController : ControllerBase
     {
         private readonly DataContext _context;
@@ -58,20 +58,24 @@ namespace AngularDemoApplication.Controllers
 
         [AllowAnonymous]
         [HttpPost("/api/token")]
-        public async Task<ActionResult<TokenResponse>> CreateToken()
+        public ActionResult<string> CreateToken()
         {
             return GetToken();
         }
 
-        private TokenResponse GetToken()
+        private string GetToken()
         {
             var tokenResponse = new TokenResponse();
             string jwtToken = string.Empty;
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
-                var encKey = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
+                var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", optional: false);
+                IConfiguration configuration = builder.Build();
+                string JWTTokenKey = configuration.GetValue<string>("AppSettings:JwtSecret");
+
+                var key = Encoding.ASCII.GetBytes(JWTTokenKey);
+                var encKey = Encoding.ASCII.GetBytes(JWTTokenKey);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
@@ -83,8 +87,8 @@ namespace AngularDemoApplication.Controllers
                      ,
                     IssuedAt = DateTime.UtcNow,
                     Expires = DateTime.UtcNow.AddHours(1),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key)
- , SecurityAlgorithms.HmacSha256Signature),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature),
                     EncryptingCredentials = new EncryptingCredentials(new SymmetricSecurityKey(encKey), JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512),
 
                 };
@@ -93,7 +97,7 @@ namespace AngularDemoApplication.Controllers
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 jwtToken = tokenHandler.WriteToken(token);
                 tokenResponse.Token = jwtToken;
- 
+
 
             }
             catch (AggregateException aggExc)
@@ -112,7 +116,8 @@ namespace AngularDemoApplication.Controllers
             {
                 jwtToken = null;
             }
-            return tokenResponse;
+            var t = JsonConvert.SerializeObject(tokenResponse.Token);
+            return t;
         }
 
 
@@ -146,7 +151,7 @@ namespace AngularDemoApplication.Controllers
                 };
                 var claims = handler.ValidateToken(token, validations, out tokenSecure);
 
-               var id= claims.Claims.FirstOrDefault(x => x.Type == "id")?.Value ?? "";
+                var id = claims.Claims.FirstOrDefault(x => x.Type == "id")?.Value ?? "";
 
                 //if (principal is ClaimsPrincipal claims)
                 //{
@@ -161,7 +166,7 @@ namespace AngularDemoApplication.Controllers
 
 
 
-                 if (id != null)
+                if (id != null)
                 {
                     return Ok($"This is your Id: {id}");
                 }
@@ -192,7 +197,7 @@ namespace AngularDemoApplication.Controllers
 
         [AllowAnonymous]
         [HttpPost("/api/ValidUsers")]
-        public async Task<ActionResult<TokenResponse>> GetValidUsers(Authenticate user)
+        public async Task<ActionResult<string>> GetValidUsers(Authenticate user)
         {
             var authenticate = await _context.Users.Where(x => x.Email == user.Email && x.Password == user.Password).FirstOrDefaultAsync();
 
@@ -200,7 +205,6 @@ namespace AngularDemoApplication.Controllers
             {
                 return NotFound();
             }
-
             return GetToken();
         }
 

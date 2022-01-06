@@ -1,3 +1,4 @@
+using AngularDemoApplication;
 using AngularDemoApplication.Contracts;
 using AngularDemoApplication.Data;
 using AngularDemoApplication.Implementation;
@@ -27,8 +28,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton(typeof(ILog<>),typeof(MMSLog<>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-var key = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
-var encKey = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
+string JWTTokenKey=builder.Configuration.GetValue<string>("AppSettings:JwtSecret");
+var key = Encoding.ASCII.GetBytes(JWTTokenKey);
+var encKey = Encoding.ASCII.GetBytes(JWTTokenKey);
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,6 +54,8 @@ builder.Services.AddAuthentication(x =>
 //        options.DisableAccessTokenEncryption();
 //    });
 //builder.Services.AddSwaggerGen();
+
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
