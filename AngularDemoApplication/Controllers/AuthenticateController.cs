@@ -8,11 +8,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AngularDemoApplication.Data;
 using AngularDemoApplication.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Claims;
+using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AngularDemoApplication.Controllers
 {
+    [Authorize]
     [Route("api/Authenticate")]
     [ApiController]
+   
     public class AuthenticateController : ControllerBase
     {
         private readonly DataContext _context;
@@ -20,6 +28,159 @@ namespace AngularDemoApplication.Controllers
         public AuthenticateController(DataContext context)
         {
             _context = context;
+        }
+        //[AllowAnonymous]
+        //[HttpPost("/api/token")]
+        //public ActionResult GetToken()
+        //{
+        //    string securityKey = "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1";
+        //    var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
+
+        //    var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
+
+        //    var claims = new List<Claim>();
+        //    //claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+        //    //claims.Add(new Claim(ClaimTypes.Role, "Reader"));
+        //    claims.Add(new Claim("Our_Custom_Claim", "Our custom value"));
+        //    claims.Add(new Claim("Id", "120"));
+
+
+        //    var token = new JwtSecurityToken(
+        //            issuer: "ali",
+        //            audience: "readers",
+        //            expires: DateTime.Now.AddHours(1),
+        //            signingCredentials: signingCredentials
+        //            , claims: claims
+        //        );
+
+        //    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+        //}
+
+        [AllowAnonymous]
+        [HttpPost("/api/token")]
+        public async Task<ActionResult<TokenResponse>> CreateToken()
+        {
+            var tokenResponse = new TokenResponse();
+            string jwtToken = string.Empty;
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
+                var encKey = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
+                //var claims = new List<Claim>();
+                ////claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+                ////claims.Add(new Claim(ClaimTypes.Role, "Reader"));
+                //claims.Add(new Claim("Our_Custom_Claim", "Our custom value"));
+                //claims.Add(new Claim("Id", "120"));
+
+
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                         {
+                                   new Claim(ClaimTypes.NameIdentifier, "1"),
+                                   new Claim(ClaimTypes.Name, "1"),
+                                   new Claim("id", "1540"),
+                         })
+                     ,
+                    IssuedAt = DateTime.UtcNow,
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key)
+ , SecurityAlgorithms.HmacSha256Signature),
+                    EncryptingCredentials = new EncryptingCredentials(new SymmetricSecurityKey(encKey), JwtConstants.DirectKeyUseAlg, SecurityAlgorithms.Aes256CbcHmacSha512),
+
+                };
+
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                jwtToken = tokenHandler.WriteToken(token);
+                tokenResponse.Token = jwtToken;
+
+                return Ok(new TokenResponse()
+                {
+                    ErrorDescription = "Success-Token generated successfully.",
+                    Token = tokenHandler.WriteToken(token)
+                });
+
+            }
+            catch (AggregateException aggExc)
+            {
+                foreach (Exception exc in aggExc.Flatten().InnerExceptions)
+                {
+                }
+
+                return BadRequest(new TokenResponse()
+                {
+                    ErrorDescription = "An unhandled exception had occured.Please check the server log.",
+                    Token = null
+                });
+            }
+            catch (Exception exc)
+            {
+                return BadRequest(new TokenResponse()
+                {
+                    ErrorDescription = "An unhandled exception had occured.Please check the server log.",
+                    Token = null
+                });
+            }
+            finally
+            {
+                jwtToken = null;
+            }
+        }
+
+
+        [HttpGet("/api/get-my-id")]
+        public ActionResult<string> GetMyId()
+        {
+
+
+            string authHeader = HttpContext.Request.Headers["Authorization"];
+
+            if (!string.IsNullOrWhiteSpace(authHeader))
+            {
+                // Get the token from the Authorization header 
+                var token = authHeader.Replace("Bearer ", "");
+
+                //var token = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJPdXJfQ3VzdG9tX0NsYWltIjoiT3VyIGN1c3RvbSB2YWx1ZSIsIklkIjoiMTEwIiwiZXhwIjoxNjQxMzc4NzQ4LCJpc3MiOiJhbGkiLCJhdWQiOiJyZWFkZXJzIn0.FuReOAKspGYmGadFZ1SS-0W592DYdmCd_kfbK0vB9GQ";
+                var handler = new JwtSecurityTokenHandler();
+                var jwtSecurityToken = handler.ReadJwtToken(token);
+                var tokenS = handler.ReadToken(token) as JwtSecurityToken;
+
+
+                var key = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
+                var tokenSecure = handler.ReadToken(token) as SecurityToken;
+                var validations = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    TokenDecryptionKey = new SymmetricSecurityKey(key),
+                };
+                var claims = handler.ValidateToken(token, validations, out tokenSecure);
+
+               var id= claims.Claims.FirstOrDefault(x => x.Type == "id")?.Value ?? "";
+
+                //if (principal is ClaimsPrincipal claims)
+                //{
+                //    return new ApplicationDTO
+                //    {
+                //        Id = claims.Claims.FirstOrDefault(x => x.Type == "sub")?.Value ?? "",
+                //        UserName = claims.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value ?? "",
+                //        Email = claims.Claims.FirstOrDefault(x => x.Type == "email")?.Value ?? ""
+                //    };
+                //}
+
+
+
+
+                 if (id != null)
+                {
+                    return Ok($"This is your Id: {id}");
+                }
+            }
+            return BadRequest("No claim");
         }
 
         // GET: api/Authenticate
@@ -116,6 +277,16 @@ namespace AngularDemoApplication.Controllers
         private bool AuthenticateExists(int id)
         {
             return _context.Users.Any(e => e.Id == id);
+        }
+    }
+
+    public class TokenResponse
+    {
+        public string ErrorDescription { get; set; }
+        public string Token { get; set; }
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }
