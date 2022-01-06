@@ -60,6 +60,11 @@ namespace AngularDemoApplication.Controllers
         [HttpPost("/api/token")]
         public async Task<ActionResult<TokenResponse>> CreateToken()
         {
+            return GetToken();
+        }
+
+        private TokenResponse GetToken()
+        {
             var tokenResponse = new TokenResponse();
             string jwtToken = string.Empty;
             try
@@ -67,13 +72,6 @@ namespace AngularDemoApplication.Controllers
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
                 var encKey = Encoding.ASCII.GetBytes("401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1");
-                //var claims = new List<Claim>();
-                ////claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
-                ////claims.Add(new Claim(ClaimTypes.Role, "Reader"));
-                //claims.Add(new Claim("Our_Custom_Claim", "Our custom value"));
-                //claims.Add(new Claim("Id", "120"));
-
-
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
@@ -95,12 +93,7 @@ namespace AngularDemoApplication.Controllers
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 jwtToken = tokenHandler.WriteToken(token);
                 tokenResponse.Token = jwtToken;
-
-                return Ok(new TokenResponse()
-                {
-                    ErrorDescription = "Success-Token generated successfully.",
-                    Token = tokenHandler.WriteToken(token)
-                });
+ 
 
             }
             catch (AggregateException aggExc)
@@ -109,24 +102,17 @@ namespace AngularDemoApplication.Controllers
                 {
                 }
 
-                return BadRequest(new TokenResponse()
-                {
-                    ErrorDescription = "An unhandled exception had occured.Please check the server log.",
-                    Token = null
-                });
+                return null;
             }
             catch (Exception exc)
             {
-                return BadRequest(new TokenResponse()
-                {
-                    ErrorDescription = "An unhandled exception had occured.Please check the server log.",
-                    Token = null
-                });
+                return null;
             }
             finally
             {
                 jwtToken = null;
             }
+            return tokenResponse;
         }
 
 
@@ -203,8 +189,10 @@ namespace AngularDemoApplication.Controllers
 
             return authenticate;
         }
+
+        [AllowAnonymous]
         [HttpPost("/api/ValidUsers")]
-        public async Task<ActionResult<Authenticate>> GetValidUsers(Authenticate user)
+        public async Task<ActionResult<TokenResponse>> GetValidUsers(Authenticate user)
         {
             var authenticate = await _context.Users.Where(x => x.Email == user.Email && x.Password == user.Password).FirstOrDefaultAsync();
 
@@ -213,7 +201,7 @@ namespace AngularDemoApplication.Controllers
                 return NotFound();
             }
 
-            return authenticate;
+            return GetToken();
         }
 
         // PUT: api/Authenticate/5
