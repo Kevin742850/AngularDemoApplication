@@ -1,8 +1,8 @@
-﻿using AngularDemoApplication.Contracts;
+﻿using PharmacyManagementSystem.Contracts;
 using NLog;
 using ILogger = NLog.ILogger;
 
-namespace AngularDemoApplication.Implementation
+namespace PharmacyManagementSystem.Implementation
 {
     public class MMSLog<T> : ILog<T>
     {

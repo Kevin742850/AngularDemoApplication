@@ -1,8 +1,8 @@
-using AngularDemoApplication;
-using AngularDemoApplication.Contracts;
-using AngularDemoApplication.Data;
-using AngularDemoApplication.Implementation;
-using AngularDemoApplication.Middleware;
+using PharmacyManagementSystem;
+using PharmacyManagementSystem.Contracts;
+using PharmacyManagementSystem.Data;
+using PharmacyManagementSystem.Implementation;
+using PharmacyManagementSystem.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

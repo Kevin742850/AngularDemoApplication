@@ -1,4 +1,4 @@
-namespace AngularDemoApplication
+namespace PharmacyManagementSystem
 {
     public class WeatherForecast
     {

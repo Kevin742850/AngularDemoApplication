@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace AngularDemoApplication.Controllers
+namespace PharmacyManagementSystem.Controllers
 {
     [ApiController]
     [Route("[controller]")]

@@ -1,4 +1,4 @@
-﻿namespace AngularDemoApplication.Contracts
+﻿namespace PharmacyManagementSystem.Contracts
 {
     public interface ILog<T>
     {

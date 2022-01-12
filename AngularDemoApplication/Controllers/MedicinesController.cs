@@ -1,9 +1,5 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyManagementSystem.Data;
@@ -11,49 +7,50 @@ using PharmacyManagementSystem.Models;
 
 namespace PharmacyManagementSystem.Controllers
 {
-    [Route("api/Status")]
+    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    public class StatusController : ControllerBase
+    public class MedicinesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public StatusController(DataContext context)
+        public MedicinesController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/Status
+        // GET: api/Medicines
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        public async Task<ActionResult<IEnumerable<Medicine>>> GetMedicines()
         {
-            return await _context.Statuses.ToListAsync();
+            return await _context.Medicines.ToListAsync();
         }
 
-        // GET: api/Status/5
+        // GET: api/Medicines/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Status>> GetStatus(int id)
+        public async Task<ActionResult<Medicine>> GetMedicine(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
+            var medicine = await _context.Medicines.FindAsync(id);
 
-            if (status == null)
+            if (medicine == null)
             {
                 return NotFound();
             }
 
-            return status;
+            return medicine;
         }
 
-        // PUT: api/Status/5
+        // PUT: api/Medicines/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStatus(int id, Status status)
+        public async Task<IActionResult> PutMedicine(int id, Medicine medicine)
         {
-            if (id != status.Id)
+            if (id != medicine.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(status).State = EntityState.Modified;
+            _context.Entry(medicine).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +58,7 @@ namespace PharmacyManagementSystem.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StatusExists(id))
+                if (!MedicineExists(id))
                 {
                     return NotFound();
                 }
@@ -74,36 +71,36 @@ namespace PharmacyManagementSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Status
+        // POST: api/Medicines
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Status>> PostStatus(Status status)
+        public async Task<ActionResult<Medicine>> PostMedicine(Medicine medicine)
         {
-            _context.Statuses.Add(status);
+            _context.Medicines.Add(medicine);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStatus", new { id = status.Id }, status);
+            return CreatedAtAction("GetMedicine", new { id = medicine.Id }, medicine);
         }
 
-        // DELETE: api/Status/5
+        // DELETE: api/Medicines/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStatus(int id)
+        public async Task<IActionResult> DeleteMedicine(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
-            if (status == null)
+            var medicine = await _context.Medicines.FindAsync(id);
+            if (medicine == null)
             {
                 return NotFound();
             }
 
-            _context.Statuses.Remove(status);
+            _context.Medicines.Remove(medicine);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool StatusExists(int id)
+        private bool MedicineExists(int id)
         {
-            return _context.Statuses.Any(e => e.Id == id);
+            return _context.Medicines.Any(e => e.Id == id);
         }
     }
 }

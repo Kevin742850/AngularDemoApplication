@@ -8,52 +8,54 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyManagementSystem.Data;
 using PharmacyManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PharmacyManagementSystem.Controllers
 {
-    [Route("api/Status")]
+    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    public class StatusController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public StatusController(DataContext context)
+        public CategoriesController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/Status
+        // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategory()
         {
-            return await _context.Statuses.ToListAsync();
+            return await _context.Category.ToListAsync();
         }
 
-        // GET: api/Status/5
+        // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Status>> GetStatus(int id)
+        public async Task<ActionResult<Category>> GetCategory(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
+            var category = await _context.Category.FindAsync(id);
 
-            if (status == null)
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return status;
+            return category;
         }
 
-        // PUT: api/Status/5
+        // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStatus(int id, Status status)
+        public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != status.Id)
+            if (id != category.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(status).State = EntityState.Modified;
+            _context.Entry(category).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +63,7 @@ namespace PharmacyManagementSystem.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StatusExists(id))
+                if (!CategoryExists(id))
                 {
                     return NotFound();
                 }
@@ -74,36 +76,36 @@ namespace PharmacyManagementSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Status
+        // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Status>> PostStatus(Status status)
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Statuses.Add(status);
+            _context.Category.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStatus", new { id = status.Id }, status);
+            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
-        // DELETE: api/Status/5
+        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStatus(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
-            if (status == null)
+            var category = await _context.Category.FindAsync(id);
+            if (category == null)
             {
                 return NotFound();
             }
 
-            _context.Statuses.Remove(status);
+            _context.Category.Remove(category);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool StatusExists(int id)
+        private bool CategoryExists(int id)
         {
-            return _context.Statuses.Any(e => e.Id == id);
+            return _context.Category.Any(e => e.Id == id);
         }
     }
 }

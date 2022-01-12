@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AngularDemoApplication.Data;
-using AngularDemoApplication.Models;
+using PharmacyManagementSystem.Data;
+using PharmacyManagementSystem.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AngularDemoApplication.Controllers
+namespace PharmacyManagementSystem.Controllers
 {
     [Authorize]
     [Route("api/Authenticate")]

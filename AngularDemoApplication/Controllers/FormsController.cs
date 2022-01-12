@@ -1,9 +1,5 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacyManagementSystem.Data;
@@ -11,49 +7,50 @@ using PharmacyManagementSystem.Models;
 
 namespace PharmacyManagementSystem.Controllers
 {
-    [Route("api/Status")]
+    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    public class StatusController : ControllerBase
+    public class FormsController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public StatusController(DataContext context)
+        public FormsController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/Status
+        // GET: api/Forms
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        public async Task<ActionResult<IEnumerable<Form>>> GetForm()
         {
-            return await _context.Statuses.ToListAsync();
+            return await _context.Form.ToListAsync();
         }
 
-        // GET: api/Status/5
+        // GET: api/Forms/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Status>> GetStatus(int id)
+        public async Task<ActionResult<Form>> GetForm(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
+            var form = await _context.Form.FindAsync(id);
 
-            if (status == null)
+            if (form == null)
             {
                 return NotFound();
             }
 
-            return status;
+            return form;
         }
 
-        // PUT: api/Status/5
+        // PUT: api/Forms/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStatus(int id, Status status)
+        public async Task<IActionResult> PutForm(int id, Form form)
         {
-            if (id != status.Id)
+            if (id != form.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(status).State = EntityState.Modified;
+            _context.Entry(form).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +58,7 @@ namespace PharmacyManagementSystem.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StatusExists(id))
+                if (!FormExists(id))
                 {
                     return NotFound();
                 }
@@ -74,36 +71,36 @@ namespace PharmacyManagementSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Status
+        // POST: api/Forms
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Status>> PostStatus(Status status)
+        public async Task<ActionResult<Form>> PostForm(Form form)
         {
-            _context.Statuses.Add(status);
+            _context.Form.Add(form);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStatus", new { id = status.Id }, status);
+            return CreatedAtAction("GetForm", new { id = form.Id }, form);
         }
 
-        // DELETE: api/Status/5
+        // DELETE: api/Forms/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStatus(int id)
+        public async Task<IActionResult> DeleteForm(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
-            if (status == null)
+            var form = await _context.Form.FindAsync(id);
+            if (form == null)
             {
                 return NotFound();
             }
 
-            _context.Statuses.Remove(status);
+            _context.Form.Remove(form);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool StatusExists(int id)
+        private bool FormExists(int id)
         {
-            return _context.Statuses.Any(e => e.Id == id);
+            return _context.Form.Any(e => e.Id == id);
         }
     }
 }

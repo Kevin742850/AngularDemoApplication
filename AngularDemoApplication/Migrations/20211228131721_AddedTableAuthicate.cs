@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace AngularDemoApplication.Migrations
+namespace PharmacyManagementSystem.Migrations
 {
     public partial class AddedTableAuthicate : Migration
     {

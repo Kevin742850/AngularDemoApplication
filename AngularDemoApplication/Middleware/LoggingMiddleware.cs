@@ -1,7 +1,7 @@
-﻿using AngularDemoApplication.Contracts;
+﻿using PharmacyManagementSystem.Contracts;
 using System.Text;
 
-namespace AngularDemoApplication.Middleware
+namespace PharmacyManagementSystem.Middleware
 {
     public class LoggingMiddleware
     {

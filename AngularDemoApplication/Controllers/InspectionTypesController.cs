@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AngularDemoApplication.Data;
-using AngularDemoApplication.Models;
+using PharmacyManagementSystem.Data;
+using PharmacyManagementSystem.Models;
 
-namespace AngularDemoApplication.Controllers
+namespace PharmacyManagementSystem.Controllers
 {
     [Route("api/InspectionTypes")]
     [ApiController]

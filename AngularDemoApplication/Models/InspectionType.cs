@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AngularDemoApplication.Models
+namespace PharmacyManagementSystem.Models
 {
     public class InspectionType
     {

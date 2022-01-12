@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,49 +12,50 @@ using PharmacyManagementSystem.Models;
 
 namespace PharmacyManagementSystem.Controllers
 {
-    [Route("api/Status")]
+    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    public class StatusController : ControllerBase
+    public class CompaniesController : ControllerBase
     {
         private readonly DataContext _context;
 
-        public StatusController(DataContext context)
+        public CompaniesController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/Status
+        // GET: api/Companies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
         {
-            return await _context.Statuses.ToListAsync();
+            return await _context.Companies.ToListAsync();
         }
 
-        // GET: api/Status/5
+        // GET: api/Companies/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Status>> GetStatus(int id)
+        public async Task<ActionResult<Company>> GetCompany(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
+            var company = await _context.Companies.FindAsync(id);
 
-            if (status == null)
+            if (company == null)
             {
                 return NotFound();
             }
 
-            return status;
+            return company;
         }
 
-        // PUT: api/Status/5
+        // PUT: api/Companies/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStatus(int id, Status status)
+        public async Task<IActionResult> PutCompany(int id, Company company)
         {
-            if (id != status.Id)
+            if (id != company.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(status).State = EntityState.Modified;
+            _context.Entry(company).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +63,7 @@ namespace PharmacyManagementSystem.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StatusExists(id))
+                if (!CompanyExists(id))
                 {
                     return NotFound();
                 }
@@ -74,36 +76,36 @@ namespace PharmacyManagementSystem.Controllers
             return NoContent();
         }
 
-        // POST: api/Status
+        // POST: api/Companies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Status>> PostStatus(Status status)
+        public async Task<ActionResult<Company>> PostCompany(Company company)
         {
-            _context.Statuses.Add(status);
+            _context.Companies.Add(company);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetStatus", new { id = status.Id }, status);
+            return CreatedAtAction("GetCompany", new { id = company.Id }, company);
         }
 
-        // DELETE: api/Status/5
+        // DELETE: api/Companies/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStatus(int id)
+        public async Task<IActionResult> DeleteCompany(int id)
         {
-            var status = await _context.Statuses.FindAsync(id);
-            if (status == null)
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null)
             {
                 return NotFound();
             }
 
-            _context.Statuses.Remove(status);
+            _context.Companies.Remove(company);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool StatusExists(int id)
+        private bool CompanyExists(int id)
         {
-            return _context.Statuses.Any(e => e.Id == id);
+            return _context.Companies.Any(e => e.Id == id);
         }
     }
 }
