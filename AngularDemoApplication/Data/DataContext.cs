@@ -22,6 +22,8 @@ namespace PharmacyManagementSystem.Data
 
         public DbSet<Strength> Strength { get; set; }
         public DbSet<Form> Form { get; set; }
-        public DbSet<PharmacyManagementSystem.Models.Category> Category { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Pharmacy> Pharmacy { get; set; }
+        public DbSet<Customer> Customer { get; set; }
     }
 }

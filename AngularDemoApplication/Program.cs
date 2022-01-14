@@ -8,11 +8,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 string angularAppURL = "http://localhost:4200";
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
 
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+	options.AllowSynchronousIO = true;
+});
 // Add services to the container.
 builder.Services.AddMvc(options =>
 {
