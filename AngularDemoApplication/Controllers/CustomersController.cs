@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PharmacyManagementSystem.Core;
 using PharmacyManagementSystem.Data;
 using PharmacyManagementSystem.Models;
+using PharmacyManagementSystem.Persistence;
 
 namespace PharmacyManagementSystem.Controllers
 {
@@ -12,25 +14,25 @@ namespace PharmacyManagementSystem.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public CustomersController(DataContext context)
+        public CustomersController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            this._unitOfWork = unitOfWork as UnitOfWork;
         }
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomer()
+        public async Task<IEnumerable<Customer>> GetCustomer()
         {
-            return await _context.Customer.ToListAsync();
+            return await Task.Run(() => _unitOfWork.Customers.GetAll());
         }
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = await Task.Run(() => _unitOfWork.Customers.Find(c => c.Id == id).FirstOrDefault());
 
             if (customer == null)
             {
@@ -49,12 +51,18 @@ namespace PharmacyManagementSystem.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(customer).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                Customer updatedCustomer = await Task.Run(() => _unitOfWork.Customers.Find(c => c.Id == id).FirstOrDefault());
+                if (updatedCustomer == null)
+                {
+                    return NotFound();
+                }
+                else
+                {                    
+                    _unitOfWork.Customers.Update(customer);
+                    _unitOfWork.Complete();
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -76,8 +84,8 @@ namespace PharmacyManagementSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            _context.Customer.Add(customer);
-            await _context.SaveChangesAsync();
+            await Task.Run(() => _unitOfWork.Customers.Add(customer));
+            _unitOfWork.Complete();
 
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
@@ -86,21 +94,26 @@ namespace PharmacyManagementSystem.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var customer = await _context.Customer.FindAsync(id);
+            var customer = await Task.Run(() => _unitOfWork.Customers.Find(c => c.Id == id).FirstOrDefault());
             if (customer == null)
             {
                 return NotFound();
             }
 
-            _context.Customer.Remove(customer);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Customers.Remove(customer);
+            _unitOfWork.Complete();
 
             return NoContent();
         }
 
         private bool CustomerExists(int id)
         {
-            return _context.Customer.Any(e => e.Id == id);
+            var customer = Task.Run(() => _unitOfWork.Customers.Find(c => c.Id == id).FirstOrDefault());
+            if (customer == null)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

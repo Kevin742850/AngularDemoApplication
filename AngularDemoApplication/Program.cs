@@ -9,6 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using PharmacyManagementSystem.Core.Repositories;
+using PharmacyManagementSystem.Persistence.Repositories;
+using PharmacyManagementSystem.Core;
+using PharmacyManagementSystem.Persistence;
 
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 string angularAppURL = "http://localhost:4200";
@@ -38,6 +42,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton(typeof(ILog<>),typeof(MMSLog<>));
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+
 string JWTTokenKey=builder.Configuration.GetValue<string>("AppSettings:JwtSecret");
 var key = Encoding.ASCII.GetBytes(JWTTokenKey);
 var encKey = Encoding.ASCII.GetBytes(JWTTokenKey);
@@ -95,7 +101,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<DataContext>(options =>
 {
 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 builder.Services.AddCors(options =>
